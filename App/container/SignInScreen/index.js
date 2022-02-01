@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, SafeAreaView, Text, View, TextInput, BackHandler } from "react-native";
+import { Pressable, SafeAreaView, Text, View, TextInput, BackHandler, ActivityIndicator } from "react-native";
 import styles from "./styles";
 import Header from "../../components/RigesterHeader";
 import RegistartionCard from "../../components/RegistartionCard";
@@ -9,6 +9,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { isEmpty } from "ramda";
 import { SAVE_LOGIN, SAVE_EMAIL } from "../../constants";
 import { useDispatch } from "react-redux";
+import axios from 'axios';
 
 const EMAIL_PATTERN = new RegExp('^[a-z0-9A-Z]+@[a-z]+\.[a-z]{2,3}$');
 const PASSWORD_PATTERN = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#&])(?=.{8,16})");
@@ -20,6 +21,8 @@ const SignInScreen = (props) => {
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [loginError, setLoginError] = useState('')
 
     useEffect(() => {
         BackHandler.addEventListener("hardwareBackPress", () => { return true; });
@@ -29,21 +32,42 @@ const SignInScreen = (props) => {
     }, []);
 
 
-    const onSignInPressed = () => {
+    const onSignInPressed = async () => {
         let isEmailValid = EMAIL_PATTERN.test(email);
         let isPasswordvalid = PASSWORD_PATTERN.test(password);
         setEmailError('');
         setPasswordError('');
+        setLoginError('');
         if (!isEmpty(email.trim()) && !isEmpty(password) && isEmailValid
             && isPasswordvalid) {
-            dispatch({ type: SAVE_LOGIN })
-            dispatch({
-                type: SAVE_EMAIL, payload: {
-                    email: email
+            setIsLoading(true)
+            try {
+                let response = await axios({
+                    method: 'post',
+                    url: "http://182.76.237.238/~teammaxtra/help_application/public/api/login",
+                    headers: {},
+                    data: {
+                        "email": email,
+                        "password": password,
+                        "user_type": 1
+                    }
+                });
+                let data = await response.data;
+                if (data.status === 0) {
+                    throw new Error("Invalid Credentials");
                 }
-            })
-            props.navigation.navigate('MainScreen');
-            setPassword('');
+                dispatch({ type: SAVE_LOGIN })
+                dispatch({
+                    type: SAVE_EMAIL, payload: {
+                        email: email
+                    }
+                })
+                props.navigation.navigate('MainScreen');
+                setPassword('');
+            } catch (error) {
+                setLoginError(error.message);
+            }
+            setIsLoading(false)
         }
         else {
             if (isEmpty(email.trim())) {
@@ -108,7 +132,9 @@ const SignInScreen = (props) => {
                         </Pressable>
                     </View>
                     {!isEmpty(passwordError) && <Text style={styles.errorText}>{passwordError}</Text>}
+
                     <View style={{ marginTop: 30 }}>
+                        {!isEmpty(loginError) && <Text style={styles.loginError}>{loginError}</Text>}
                         <Pressable
                             onPress={onSignInPressed}
                             style={styles.signInButton}>
@@ -116,7 +142,11 @@ const SignInScreen = (props) => {
                         </Pressable>
                     </View>
                 </KeyboardAwareScrollView>
-
+                {isLoading ? (
+                    <View style={styles.activityIndicator}>
+                        <ActivityIndicator size="large" color={"#312F57"} />
+                    </View>
+                ) : null}
             </RegistartionCard>
         </SafeAreaView>
     </React.Fragment>

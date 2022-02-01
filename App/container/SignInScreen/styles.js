@@ -56,19 +56,28 @@ const styles = StyleSheet.create({
         fontWeight: "700"
     },
 
-    signUpText: {
-        color: "#7F7F7F",
-        marginLeft: 15,
-        fontSize: 14,
-        marginTop: 25,
-        alignSelf: "center"
-    },
 
     errorText: {
         marginHorizontal: 15,
         color: "#ED1B2E",
         padding: 4,
         fontSize: 11,
+    },
+    activityIndicator: {
+        alignItems: "center",
+        bottom: 0,
+        justifyContent: "center",
+        left: 0,
+        position: "absolute",
+        right: 0,
+        top: 0,
+    },
+
+    loginError: {
+        marginHorizontal: 15,
+        color: "#ED1B2E",
+        padding: 4,
+        fontSize: 15,
     },
 
 })
