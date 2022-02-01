@@ -42,7 +42,7 @@ const SignInScreen = (props) => {
                     email: email
                 }
             })
-            // props.navigation.navigate('MainScreen');
+            props.navigation.navigate('MainScreen');
             setPassword('');
         }
         else {
@@ -114,9 +114,6 @@ const SignInScreen = (props) => {
                             style={styles.signInButton}>
                             <Text style={styles.signInText}>Sign In</Text>
                         </Pressable>
-                        <Text style={styles.signUpText}>Don't have an account? <Text
-                            style={{ color: "#312F57" }}
-                            onPress={() => props.navigation.navigate("InitialScreen")}>Sign Up</Text></Text>
                     </View>
                 </KeyboardAwareScrollView>
 
